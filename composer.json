@@ -1,10 +1,13 @@
 {
-    "name": "rocket-code/shopify",
-    "description": "",
+    "name": "garmanio/laravel-shopify",
+    "description": "Shopify API Wrapper for Laravel",
+    "keywords": ["shopify", "laravel"],
+    "license": "MIT",
+    "homepage": "https://garman.io",
     "authors": [
         {
-            "name": "Rocket Code",
-            "email": "josh@rocketcode.io"
+            "name": "Patrick Garman",
+            "email": "patrick@garman.io"
         }
     ],
     "require": {
@@ -13,7 +16,7 @@
     "autoload": {
       "psr-4":
       {
-        "RocketCode\\": "src/RocketCode"
+        "GarmanIO\\": "src/GarmanIO"
       }
     },
     "minimum-stability": "stable"

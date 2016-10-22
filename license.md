@@ -1,5 +1,6 @@
 The MIT License (MIT)
 
+Copyright (c) 2016 Garman.IO LLC
 Copyright (c) 2014 ROCKET CODE LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
