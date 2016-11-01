@@ -28,52 +28,42 @@ class API
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function verifyRequest($data = NULL, $bypassTimeCheck = FALSE)
-	{
-		$da = array();
-		if (is_string($data))
-		{
-			$each = explode('&', $data);
-			foreach($each as $e)
-			{
-				list($key, $val) = explode('=', $e);
-				$da[$key] = $val;
-			}
-		}
-		elseif (is_array($data))
-		{
-			$da = $data;
-		}
-		else
-		{
-			throw new \Exception('Data passed to verifyRequest() needs to be an array or URL-encoded string of key/value pairs.');
-		}
+	public function verifyRequest($data = array(), $verifyTimestamp = false) {
+        /**
+         * Verify we have an array of keys
+         */
+        if( ! is_array( $data ) ) {
+            throw new \Exception( 'Unable to verify request. Data was not passed as an array.' );
+        }
 
-		// Timestamp check; 1 hour tolerance
-		if (!$bypassTimeCheck)
-		{
-			if (($da['timestamp'] - time() > 3600))
-			{
-				throw new \Exception('Timestamp is greater than 1 hour old. To bypass this check, pass TRUE as the second argument to verifyRequest().');
-			}
-		}
+        if( ! isset( $data['hmac'] ) ) {
+            throw new \Exception( 'Unable to verify requestion. HMAC is missing.' );
+        }
 
-		if (array_key_exists('hmac', $da))
-		{
-			// HMAC Validation
-			$queryString = http_build_query(array('code' => $da['code'], 'shop' => $da['shop'], 'timestamp' => $da['timestamp']));
-			$match = $da['hmac'];
-			$calculated = hash_hmac('sha256', $queryString, $this->_API['API_SECRET']);
-		}
-		else
-		{
-			// MD5 Validation, to be removed June 1st, 2015
-			$queryString = http_build_query(array('code' => $da['code'], 'shop' => $da['shop'], 'timestamp' => $da['timestamp']), NULL, '');
-			$match = $da['signature'];
-			$calculated = md5($this->_API['API_SECRET'] . $queryString);
-		}
+        /**
+         * Validate the timestamp
+         */
+        if( false === $verifyTimestamp ) {
+            if( isset( $data['timestamp'] ) ) {
+                if( $data['timestamp'] - time() > 3600 ) {
+                    throw new \Exception( 'Unable to verify request. Timestamp has expired.' );
+                }
+            } else {
+                throw new \Exception( 'Unable to verify requestion. Timestamp is missing.' );
+            }
+        }
 
-		return $calculated === $match;
+        /**
+         * Build HASH and validate
+         */
+        $hmac = $data['hmac'];
+        unset( $data['hmac'] );
+        ksort( $data );
+
+        $query = http_build_query( $data );
+        $hash  = hash_hmac('sha256', $query, $this->_API['API_SECRET']);
+
+		return $hmac === $hash;
 	}
 
 	/**
